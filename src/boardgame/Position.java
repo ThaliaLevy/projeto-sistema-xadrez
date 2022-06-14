@@ -1,6 +1,7 @@
 package boardgame;
 
 public class Position {
+	//classe que manipula as posições das peças
 	private int row, column;
 	
 	public Position(int row, int column) {
