@@ -18,7 +18,7 @@ public abstract class ChessPiece extends Piece{
 		return color;
 	}	
 	
-	// verificar se há peça do adversario dentro do limite da peça escolhida > 3:32 - aula 179
+	// verificar se há peça do adversario dentro do limite da peça escolhida > 3:32 - aula 179 / n lembro o que é: revisar esse comentario
 	protected boolean isThereOpponentPiece(Position position) {
 		ChessPiece p = (ChessPiece)getBoard().piece(position);
 		return p != null && p.getColor() != color;
