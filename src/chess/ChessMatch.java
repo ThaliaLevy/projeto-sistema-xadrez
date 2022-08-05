@@ -36,6 +36,10 @@ public class ChessMatch {
 		return currentPlayer;
 	}
 	
+	public boolean getCheck() {
+		return check;
+	}
+	
 	//Program precisa ter acesso somente às peças desta camada (chess) e, portanto,
 	//não poderá acessar as peças da matriz em Piece (boardgame). acessará:
 	public ChessPiece[][] getPieces(){
@@ -63,6 +67,15 @@ public class ChessMatch {
 		validateSourcePosition(source);
 		validateTargetPosition(source, target);
 		Piece capturedPiece = makeMove(source, target);
+		
+		//verificar se o jogador da vez se colocou em xeque
+		if(testCheck(currentPlayer)) {
+			undoMove(source, target, capturedPiece);
+			throw new ChessException("You can't put yourself in check.");
+		}
+		
+		check = (testCheck(opponent(currentPlayer))) ? true : false;
+		
 		nextTurn();
 		return (ChessPiece) capturedPiece;
 	}
@@ -131,6 +144,19 @@ public class ChessMatch {
 			}
 		}
 		throw new IllegalStateException("There is no " + color + " king on the board.");
+	}
+	
+	//verficar se, dentre todas as jogadas possíveis das peças adversárias, haverá uma em que colocará o rei em xeque
+	private boolean testCheck(Color color) {
+		Position kingPosition = king(color).getChessPosition().toPosition();
+		List<Piece> opponentPieces = piecesOnTheBoard.parallelStream().filter(x -> ((ChessPiece)x).getColor() == opponent(color)).collect(Collectors.toList());
+		for(Piece p : opponentPieces) {
+			boolean[][] mat = p.possibleMoves();
+			if(mat[kingPosition.getRow()][kingPosition.getColumn()]) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	//colocar peça passando as coordenadas do xadrez. ex.: b2
