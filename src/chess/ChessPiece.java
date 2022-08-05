@@ -18,7 +18,12 @@ public abstract class ChessPiece extends Piece{
 		return color;
 	}	
 	
-	// verificar se há peça do adversario dentro do limite da peça escolhida > 3:32 - aula 179
+	//pega o retorno da função fromPosition que recebe posição de matriz e retorna em posição de xadrez
+	public ChessPosition getChessPosition() {
+		return ChessPosition.fromPosition(position);
+	}
+	
+	// verificar se há peça do adversario dentro do limite da peça escolhida
 	protected boolean isThereOpponentPiece(Position position) {
 		ChessPiece p = (ChessPiece)getBoard().piece(position);
 		return p != null && p.getColor() != color;
