@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import boardgame.Board;
 import boardgame.Piece;
@@ -15,6 +16,7 @@ public class ChessMatch {
 	private Board board; 
 	private int turn;
 	private Color currentPlayer;	
+	private boolean check;	//por padrão, boolean inicia como false
 	private List<Piece> piecesOnTheBoard = new ArrayList<>();
 	private List<Piece> capturedPieces = new ArrayList<>();
 	
@@ -78,6 +80,18 @@ public class ChessMatch {
 		return capturedPiece;
 	}
 	
+	//desfazer movimentações em caso de tentativa de se colocar em check
+	private void undoMove(Position source, Position target, Piece capturedPiece) {
+		Piece p = board.removePiece(target);
+		board.placePiece(p, source);
+		
+		if(capturedPiece != null) {
+			board.placePiece(capturedPiece, target);
+			piecesOnTheBoard.add(capturedPiece);
+			capturedPieces.remove(capturedPiece);
+		}
+	}
+	
 	//validar se há uma peça na posição de origem 
 	private void validateSourcePosition(Position position) {
 		if(!board.thereIsAPiece(position)) {
@@ -103,6 +117,20 @@ public class ChessMatch {
 	private void nextTurn() {
 		turn++;
 		currentPlayer = (currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE;
+	}
+	
+	private Color opponent(Color color) {
+		return (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
+	}
+	
+	private ChessPiece king(Color color) {
+		List<Piece> list = piecesOnTheBoard.parallelStream().filter(x -> ((ChessPiece)x).getColor() == color).collect(Collectors.toList());
+		for(Piece p : list) {	//para cada peça da lista
+			if(p instanceof King) {	//se a peça for da instancia King
+				return (ChessPiece) p;
+			}
+		}
+		throw new IllegalStateException("There is no " + color + " king on the board.");
 	}
 	
 	//colocar peça passando as coordenadas do xadrez. ex.: b2
